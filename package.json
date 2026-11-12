@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "highlight.js": "^11.11.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^7.0.2",
+    "vite": "^6.4.1"
+  },
+  "name": "server-tuning-wiki",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview --port 4173",
+    "build:apk": "vite build --base ./ && npx cap sync android",
+    "cap:sync": "npx cap sync android"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

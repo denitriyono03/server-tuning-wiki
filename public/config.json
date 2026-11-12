@@ -1,0 +1,29 @@
+{
+  "colors": {
+    "accent": "#f59e0b",
+    "background": "#f8fafc",
+    "border": "#e2e8f0",
+    "codeBackground": "#0f172a",
+    "muted": "#64748b",
+    "primary": "#4f46e5",
+    "secondary": "#059669",
+    "surface": "#ffffff",
+    "text": "#0f172a"
+  },
+  "colorsDark": {
+    "accent": "#fbbf24",
+    "background": "#0b1220",
+    "border": "#1e293b",
+    "codeBackground": "#020617",
+    "muted": "#94a3b8",
+    "primary": "#818cf8",
+    "secondary": "#34d399",
+    "surface": "#111827",
+    "text": "#f1f5f9"
+  },
+  "defaultAuthor": "Deni",
+  "siteDescription": "Panduan tuning server untuk performa: NGINX, download file, database, caching, dan Linux. Konten diambil dari API Cloudflare (D1) dan tersimpan offline di perangkat — tambah artikel baru tinggal tambah data di database.",
+  "siteSubtitle": "Bikin server ngebut",
+  "siteTitle": "Server Tuning Wiki",
+  "apiBaseUrl": ""
+}

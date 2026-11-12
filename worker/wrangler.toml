@@ -1,0 +1,10 @@
+name = "server-tuning-api"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+# D1 database — dibuat sekali lewat dashboard/API, lalu isi database_id di bawah.
+# Perintah: wrangler d1 create server-tuning-db
+[[d1_databases]]
+binding = "DB"
+database_name = "server-tuning-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
