@@ -1,0 +1,69 @@
+name: Build Server Tuning Wiki APK (Android, debug)
+
+# DEBUG APK only, for testing — not a signed release APK.
+# Membangun web (vite build --base ./), menyalinnya ke proyek Capacitor
+# (npx cap sync android), lalu assembleDebug lewat Gradle.
+# Pola JDK/SDK mengikuti workflow PuzzleVerse yang sudah terbukti jalan:
+# runner ubuntu sudah membawa JDK 17 + Android SDK bawaan.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Use preinstalled JDK 17
+        run: |
+          echo "JAVA_HOME_17_X64=$JAVA_HOME_17_X64"
+          ls "$JAVA_HOME_17_X64/bin/java"
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_17_X64/bin" >> "$GITHUB_PATH"
+          "$JAVA_HOME_17_X64/bin/java" -version
+
+      - name: Use preinstalled Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Install Android platform and build-tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Proyek native Android di-generate di CI (folder android/ tidak
+      # di-commit, mengikuti pola PuzzleVerse) supaya repo tetap bersih.
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Build web for Capacitor + sync
+        run: npm run build:apk
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ServerTuningWiki-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 90
