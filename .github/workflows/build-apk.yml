@@ -4,7 +4,9 @@ name: Build Server Tuning Wiki APK (Android, debug)
 # Membangun web (vite build --base ./), menyalinnya ke proyek Capacitor
 # (npx cap sync android), lalu assembleDebug lewat Gradle.
 # Pola JDK/SDK mengikuti workflow PuzzleVerse yang sudah terbukti jalan:
-# runner ubuntu sudah membawa JDK 17 + Android SDK bawaan.
+# runner ubuntu sudah membawa JDK + Android SDK bawaan.
+# PENTING: Capacitor 8 butuh Java 21 (bukan 17) — build gagal dengan
+# "invalid source release: 21" kalau JDK 17 yang dipakai.
 
 on:
   push:
@@ -27,13 +29,13 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Use preinstalled JDK 17
+      - name: Use preinstalled JDK 21
         run: |
-          echo "JAVA_HOME_17_X64=$JAVA_HOME_17_X64"
-          ls "$JAVA_HOME_17_X64/bin/java"
-          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
-          echo "$JAVA_HOME_17_X64/bin" >> "$GITHUB_PATH"
-          "$JAVA_HOME_17_X64/bin/java" -version
+          echo "JAVA_HOME_21_X64=$JAVA_HOME_21_X64"
+          ls "$JAVA_HOME_21_X64/bin/java"
+          echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
+          "$JAVA_HOME_21_X64/bin/java" -version
 
       - name: Use preinstalled Android SDK
         run: |
@@ -43,7 +45,7 @@ jobs:
 
       - name: Install Android platform and build-tools
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "platforms;android-35" "build-tools;34.0.0" "build-tools;35.0.0"
 
       - name: Install dependencies
         run: npm ci
