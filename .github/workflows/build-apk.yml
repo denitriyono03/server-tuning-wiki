@@ -1,8 +1,8 @@
 name: Build Server Tuning Wiki APK (Android, debug)
 
 # DEBUG APK only, for testing — not a signed release APK.
-# Membangun web (vite build --base ./), menyalinnya ke proyek Capacitor
-# (npx cap sync android), lalu assembleDebug lewat Gradle.
+# Membangun web Angular (ng build --base-href ./), menyalinnya ke proyek
+# Capacitor (npx cap sync android), lalu assembleDebug lewat Gradle.
 # Pola JDK/SDK mengikuti workflow PuzzleVerse yang sudah terbukti jalan:
 # runner ubuntu sudah membawa JDK + Android SDK bawaan.
 # PENTING: Capacitor 8 butuh Java 21 (bukan 17) — build gagal dengan
