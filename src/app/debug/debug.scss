@@ -1,0 +1,127 @@
+.debug-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.debug-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+}
+
+.debug-header p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.status-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+  flex-wrap: wrap;
+}
+
+.status-row .label {
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.status-row code {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.status-row .muted {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.status-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-input {
+  flex: 1 1 280px;
+}
+
+.filter-select {
+  flex: 0 1 180px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.url-cell {
+  max-width: 340px;
+}
+
+.url-cell code {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+mat-chip.status-ok {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+mat-chip.status-warn {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+mat-chip.status-err {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.empty-mascot {
+  width: 120px;
+  height: auto;
+}
+
+@media (max-width: 600px) {
+  .status-row .label {
+    min-width: 110px;
+  }
+
+  .url-cell {
+    max-width: 180px;
+  }
+}

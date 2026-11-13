@@ -23,7 +23,7 @@ wrangler d1 create server-tuning-db
 # 2. Buat tabel
 wrangler d1 execute server-tuning-db --file=worker/schema.sql
 
-# 3. Seed artikel dari src/content/*.json
+# 3. Seed artikel dari public/content/*.json
 node worker/seed.mjs
 wrangler d1 execute server-tuning-db --file=worker/seed.sql
 
@@ -47,7 +47,7 @@ server.
 
 ## Menambah / mengubah artikel
 
-1. Tambah atau ubah file JSON di `src/content/` (lihat `docs/CONTENT_GUIDE.md`).
+1. Tambah atau ubah file JSON di `public/content/` (lihat `docs/CONTENT_GUIDE.md`).
 2. Jalankan `node worker/seed.mjs`, lalu execute `worker/seed.sql` ke D1.
 3. Build & deploy ulang website/APK supaya bundle fallback-nya ikut baru.
    Aplikasi yang sudah terinstal akan mengambil konten baru dari API saat

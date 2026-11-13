@@ -1,0 +1,419 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+// Font self-hosted (Fontsource) — tidak bergantung pada Google Fonts saat runtime.
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/material-icons/index.css';
+
+// Aturan kelas .material-icons (biasanya datang dari stylesheet Google Fonts;
+// Fontsource hanya menyediakan @font-face, jadi didefinisikan sendiri).
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+}
+
+// ---------------------------------------------------------------------------
+// Palet kustom — dibuat dari palet bawaan Material (struktur sub-map
+// secondary/neutral/neutral-variant/error dipertahankan agar validasi M3
+// lolos), hanya nilai tonal yang diganti ke warna brand.
+// Light: primary indigo #4f46e5 (tone 40), tertiary emerald #059669 (tone 40).
+// Dark:  primary indigo #818cf8 (tone 80), tertiary emerald #34d399 (tone 80).
+// ---------------------------------------------------------------------------
+$stw-indigo-light: map.merge(
+  mat.$violet-palette,
+  (
+    0: #000000,
+    10: #1e1b4b,
+    20: #312e81,
+    25: #3730a3,
+    30: #4338ca,
+    35: #4a3fc8,
+    40: #4f46e5,
+    50: #6366f1,
+    60: #7c7ff7,
+    70: #818cf8,
+    80: #a5b4fc,
+    90: #c7d2fe,
+    95: #e0e7ff,
+    98: #eef2ff,
+    99: #f8faff,
+    100: #ffffff,
+  )
+);
+
+$stw-emerald-light: map.merge(
+  mat.$spring-green-palette,
+  (
+    0: #000000,
+    10: #022c22,
+    20: #064e3b,
+    25: #065f46,
+    30: #047857,
+    35: #058265,
+    40: #059669,
+    50: #10b981,
+    60: #23c48d,
+    70: #34d399,
+    80: #6ee7b7,
+    90: #a7f3d0,
+    95: #d1fae5,
+    98: #ecfdf5,
+    99: #f5fefb,
+    100: #ffffff,
+  )
+);
+
+$stw-indigo-dark: map.merge(
+  mat.$violet-palette,
+  (
+    0: #000000,
+    10: #1e1b4b,
+    20: #312e81,
+    25: #3730a3,
+    30: #4338ca,
+    35: #4a3fc8,
+    40: #4f46e5,
+    50: #6366f1,
+    60: #6f72f2,
+    70: #7678f6,
+    80: #818cf8,
+    90: #c7d2fe,
+    95: #e0e7ff,
+    98: #eef2ff,
+    99: #f8faff,
+    100: #ffffff,
+  )
+);
+
+$stw-emerald-dark: map.merge(
+  mat.$spring-green-palette,
+  (
+    0: #000000,
+    10: #022c22,
+    20: #064e3b,
+    25: #065f46,
+    30: #047857,
+    35: #058265,
+    40: #059669,
+    50: #10b981,
+    60: #22c08d,
+    70: #2bc795,
+    80: #34d399,
+    90: #a7f3d0,
+    95: #d1fae5,
+    98: #ecfdf5,
+    99: #f5fefb,
+    100: #ffffff,
+  )
+);
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: $stw-indigo-light,
+        tertiary: $stw-emerald-light,
+      ),
+      typography: (
+        plain-family: ('Inter', system-ui, sans-serif),
+        brand-family: ('Inter', system-ui, sans-serif),
+      ),
+      density: 0,
+    )
+  );
+}
+
+html.dark {
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: $stw-indigo-dark,
+        tertiary: $stw-emerald-dark,
+      ),
+    )
+  );
+}
+
+// ---------------------------------------------------------------------------
+// CSS variables — dipakai komponen untuk warna yang tidak ditangani Material.
+// ---------------------------------------------------------------------------
+:root {
+  --stw-primary: #4f46e5;
+  --stw-secondary: #059669;
+  --stw-accent: #f59e0b;
+  --stw-background: #f8fafc;
+  --stw-surface: #ffffff;
+  --stw-text: #0f172a;
+  --stw-muted: #64748b;
+  --stw-border: #e2e8f0;
+  --stw-code-bg: #0f172a;
+  --stw-error: #dc2626;
+  --stw-success: #16a34a;
+  --stw-warning: #d97706;
+}
+
+html.dark {
+  --stw-primary: #818cf8;
+  --stw-secondary: #34d399;
+  --stw-accent: #fbbf24;
+  --stw-background: #0b1220;
+  --stw-surface: #111827;
+  --stw-text: #f1f5f9;
+  --stw-muted: #94a3b8;
+  --stw-border: #1e293b;
+  --stw-code-bg: #020617;
+  --stw-error: #ef4444;
+  --stw-success: #22c55e;
+  --stw-warning: #f59e0b;
+}
+
+// ---------------------------------------------------------------------------
+// Global
+// ---------------------------------------------------------------------------
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--stw-background);
+  color: var(--stw-text);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+// Scrollbar halus.
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--stw-muted) 45%, transparent);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+// ---------------------------------------------------------------------------
+// Isi artikel (dirender dari blocks[] sebagai HTML oleh ArticleComponent).
+// ---------------------------------------------------------------------------
+.article-body {
+  line-height: 1.75;
+  overflow-wrap: break-word;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 2rem 0 0.75rem;
+    scroll-margin-top: 84px;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 1.5rem 0 0.5rem;
+    scroll-margin-top: 84px;
+  }
+
+  p {
+    margin: 0.75rem 0;
+  }
+
+  a {
+    color: var(--stw-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  code {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: 0.875em;
+    background: color-mix(in srgb, var(--stw-primary) 10%, transparent);
+    color: var(--stw-primary);
+    padding: 0.1em 0.35em;
+    border-radius: 6px;
+  }
+
+  mark {
+    background: color-mix(in srgb, var(--stw-accent) 35%, transparent);
+    color: inherit;
+    padding: 0 0.2em;
+    border-radius: 4px;
+  }
+
+  ul,
+  ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin: 0.375rem 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    display: block;
+    overflow-x: auto;
+  }
+
+  th,
+  td {
+    border: 1px solid var(--stw-border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  th {
+    background: color-mix(in srgb, var(--stw-primary) 8%, transparent);
+    font-weight: 700;
+  }
+
+  blockquote {
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 4px solid var(--stw-primary);
+    color: var(--stw-muted);
+    font-style: italic;
+  }
+
+  img {
+    max-width: 100%;
+    border-radius: 12px;
+    display: block;
+    margin: 1rem auto;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--stw-border);
+    margin: 2rem 0;
+  }
+}
+
+// Kotak catatan (callout) — 4 jenis.
+.callout {
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  margin: 1rem 0;
+  border: 1px solid var(--stw-border);
+  border-left: 4px solid var(--stw-primary);
+  background: color-mix(in srgb, var(--stw-primary) 6%, transparent);
+}
+
+.callout-title {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.callout-info {
+  border-left-color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 8%, transparent);
+}
+
+.callout-tip {
+  border-left-color: var(--stw-secondary);
+  background: color-mix(in srgb, var(--stw-secondary) 8%, transparent);
+}
+
+.callout-warning {
+  border-left-color: var(--stw-warning);
+  background: color-mix(in srgb, var(--stw-warning) 10%, transparent);
+}
+
+.callout-danger {
+  border-left-color: var(--stw-error);
+  background: color-mix(in srgb, var(--stw-error) 8%, transparent);
+}
+
+// Blok kode gelap + tombol salin.
+.codeblock {
+  background: var(--stw-code-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem 0;
+
+  pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  pre code {
+    background: transparent;
+    color: #e2e8f0;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Daftar isi artikel.
+// ---------------------------------------------------------------------------
+.toc-link {
+  display: block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--stw-muted);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.toc-link:hover {
+  color: var(--stw-text);
+  background: color-mix(in srgb, var(--stw-primary) 6%, transparent);
+}
+
+.toc-link.l3 {
+  padding-left: 1.5rem;
+  font-size: 0.8125rem;
+}
+
+.toc-link.active {
+  color: var(--stw-primary);
+  font-weight: 700;
+  border-left-color: var(--stw-primary);
+  background: color-mix(in srgb, var(--stw-primary) 8%, transparent);
+}
+
+// Judul hero dengan gradient indigo → emerald.
+.hero-title-gradient {
+  background: linear-gradient(90deg, #4f46e5, #059669);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

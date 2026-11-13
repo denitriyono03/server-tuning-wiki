@@ -1,0 +1,142 @@
+<div class="progress-bar" [style.width.%]="progress()"></div>
+
+@if (article(); as a) {
+  <article class="article-page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">Beranda</a>
+      <span aria-hidden="true">/</span>
+      <a [routerLink]="['/category', a.category]">{{ a.category }}</a>
+      <span aria-hidden="true">/</span>
+      @for (anc of ancestors(); track anc.slug) {
+        <a [routerLink]="['/article', anc.slug]">{{ anc.title }}</a>
+        <span aria-hidden="true">/</span>
+      }
+      <span class="current">{{ a.title }}</span>
+    </nav>
+
+    <div class="cover">
+      <img [src]="a.image || ''" [alt]="a.imageAlt || a.title" (error)="onImgError($event)" />
+    </div>
+
+    <div class="article-layout">
+      <div class="article-main">
+        <div class="badges">
+          <a [routerLink]="['/category', a.category]">
+            <span class="badge badge-category">{{ a.category }}</span>
+          </a>
+          <span class="badge" [class.badge-pemula]="a.difficulty === 'Pemula'" [class.badge-menengah]="a.difficulty === 'Menengah'" [class.badge-mahir]="a.difficulty === 'Mahir'">
+            {{ a.difficulty }}
+          </span>
+        </div>
+
+        <h1>{{ a.title }}</h1>
+        <p class="subtitle">{{ a.subtitle }}</p>
+
+        <div class="meta">
+          <span>{{ a.author || (config | async)?.defaultAuthor }}</span>
+          <span aria-hidden="true">•</span>
+          <span>{{ formatDate(a.dateCreated) }}</span>
+          @if (a.dateUpdated && a.dateUpdated !== a.dateCreated) {
+            <span aria-hidden="true">•</span>
+            <span>Diperbarui {{ formatDate(a.dateUpdated) }}</span>
+          }
+          <span aria-hidden="true">•</span>
+          <span>{{ readingTime(a) }}</span>
+        </div>
+
+        <mat-chip-set class="tag-chips" aria-label="Tag artikel">
+          @for (t of a.tags; track t) {
+            <mat-chip [routerLink]="['/tag', t]">#{{ t }}</mat-chip>
+          }
+        </mat-chip-set>
+
+        <app-block-renderer [blocks]="a.blocks"></app-block-renderer>
+
+        @if (a.source?.url) {
+          <div class="source-box">
+            <strong>Sumber:</strong>
+            <a [href]="a.source.url" target="_blank" rel="noopener noreferrer">
+              {{ a.source.label || a.source.url }}
+            </a>
+          </div>
+        }
+
+        @if (related().length) {
+          <section class="related">
+            <h2>Konten Terkait</h2>
+            <div class="related-grid">
+              @for (r of related(); track r.slug) {
+                <mat-card class="related-card">
+                  <a [routerLink]="['/article', r.slug]" class="related-image-link">
+                    <img mat-card-image [src]="r.image || ''" [alt]="r.imageAlt || r.title" loading="lazy" (error)="onImgError($event)" />
+                  </a>
+                  <mat-card-content>
+                    <span class="badge badge-category">{{ r.category }}</span>
+                    <a [routerLink]="['/article', r.slug]">
+                      <h3>{{ r.title }}</h3>
+                    </a>
+                    <p>{{ r.subtitle }}</p>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          </section>
+        }
+
+        <nav class="prev-next">
+          @if (prevNext().prev; as prev) {
+            <a mat-button [routerLink]="['/article', prev.slug]" class="prev-link">
+              <span class="nav-label">Sebelumnya</span>
+              <span class="nav-title">{{ prev.title }}</span>
+            </a>
+          } @else {
+            <span></span>
+          }
+          @if (prevNext().next; as next) {
+            <a mat-button [routerLink]="['/article', next.slug]" class="next-link">
+              <span class="nav-label">Berikutnya</span>
+              <span class="nav-title">{{ next.title }}</span>
+            </a>
+          } @else {
+            <span></span>
+          }
+        </nav>
+      </div>
+
+      @if (headings().length) {
+        <aside class="toc">
+          <div class="toc-card">
+            <p class="toc-title">
+              <mat-icon>list</mat-icon> Daftar Isi
+            </p>
+            <nav>
+              @for (h of headings(); track h.id) {
+                <a
+                  class="toc-link"
+                  [class.toc-l3]="h.level === 3"
+                  [class.active]="activeHeading() === h.id"
+                  (click)="scrollToHeading(h.id)"
+                >
+                  {{ h.text }}
+                </a>
+              }
+            </nav>
+          </div>
+        </aside>
+      }
+    </div>
+  </article>
+} @else {
+  <section class="not-found">
+    <img class="empty-mascot" src="scout-mascot.webp" alt="Maskot Scout" (error)="onImgError($event)" />
+    <h1>Artikel tidak ditemukan</h1>
+    <p>Artikel yang kamu cari tidak ada di wiki ini.</p>
+    <a mat-flat-button color="primary" routerLink="/">Kembali ke Beranda</a>
+  </section>
+}
+
+@if (showTop()) {
+  <button mat-fab color="primary" class="back-to-top" (click)="scrollToTop()" aria-label="Kembali ke atas">
+    <mat-icon>arrow_upward</mat-icon>
+  </button>
+}

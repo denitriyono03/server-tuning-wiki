@@ -1,0 +1,154 @@
+@if (config(); as cfg) {
+  <section class="hero">
+    <img class="hero-mascot" src="scout-mascot.webp" alt="Maskot Scout" (error)="onImgError($event)" />
+    <p class="hero-badge">
+      <mat-icon>bolt</mat-icon>
+      Wiki Performa · Tuning Server
+    </p>
+    <h1 class="hero-title">{{ cfg.siteTitle }}</h1>
+    <p class="hero-subtitle">{{ cfg.siteSubtitle }}</p>
+    <p class="hero-description">{{ cfg.siteDescription }}</p>
+
+    <mat-form-field class="hero-search" appearance="outline">
+      <mat-label>Cari artikel, topik, atau kata kunci…</mat-label>
+      <input matInput id="search-input" type="search" [(ngModel)]="q" autocomplete="off" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <div class="hero-stats">
+      <span><strong>{{ articles().length }}</strong> Artikel</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>{{ categories().length }}</strong> Kategori</span>
+      <span class="dot" aria-hidden="true">•</span>
+      <span><strong>{{ allTags().length }}</strong> Tag</span>
+    </div>
+  </section>
+
+  <section class="filters">
+    <mat-chip-set aria-label="Filter kategori">
+      <mat-chip [routerLink]="['/']" [class.selected]="!category() && !tag()">
+        Semua
+      </mat-chip>
+      @for (c of categories(); track c) {
+        <mat-chip [routerLink]="['/category', c]" [class.selected]="category() === c">
+          {{ c }}
+        </mat-chip>
+      }
+    </mat-chip-set>
+    <mat-form-field class="sort-field" appearance="outline">
+      <mat-label>Urutkan</mat-label>
+      <mat-select [(ngModel)]="sort">
+        <mat-option value="newest">Terbaru</mat-option>
+        <mat-option value="oldest">Terlama</mat-option>
+        <mat-option value="title">Judul A–Z</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  @if (category()) {
+    <p class="active-filter">
+      Kategori: <strong>{{ category() }}</strong>
+      <button mat-button (click)="resetFilters()">Hapus filter</button>
+    </p>
+  }
+  @if (tag()) {
+    <p class="active-filter">
+      Tag: <strong>#{{ tag() }}</strong>
+      <button mat-button (click)="resetFilters()">Hapus filter</button>
+    </p>
+  }
+
+  <p class="result-count">{{ filtered().length }} artikel ditemukan</p>
+
+  @if (allTags().length) {
+    <mat-chip-set class="tag-chips" aria-label="Filter tag">
+      @for (t of allTags(); track t) {
+        <mat-chip [routerLink]="['/tag', t]" [class.selected]="tag() === t">
+          #{{ t }}
+        </mat-chip>
+      }
+    </mat-chip-set>
+  }
+
+  @if (featured(); as feat) {
+    <section class="featured">
+      <mat-card class="featured-card">
+        <a [routerLink]="['/article', feat.slug]" class="featured-image-link">
+          <img mat-card-image [src]="feat.image || ''" [alt]="feat.imageAlt || feat.title" (error)="onImgError($event)" />
+        </a>
+        <div class="featured-body">
+          <div class="badges">
+            <span class="badge badge-featured">
+              <mat-icon>star</mat-icon> Artikel Pilihan
+            </span>
+            <span class="badge badge-category">{{ feat.category }}</span>
+            <span class="badge" [class.badge-pemula]="feat.difficulty === 'Pemula'" [class.badge-menengah]="feat.difficulty === 'Menengah'" [class.badge-mahir]="feat.difficulty === 'Mahir'">
+              {{ feat.difficulty }}
+            </span>
+          </div>
+          <a [routerLink]="['/article', feat.slug]">
+            <h2>{{ feat.title }}</h2>
+          </a>
+          <p class="card-subtitle">{{ feat.subtitle }}</p>
+          <div class="card-meta">
+            <span>{{ feat.author || cfg.defaultAuthor }}</span>
+            <span aria-hidden="true">•</span>
+            <span>{{ formatDate(feat.dateCreated) }}</span>
+            <span aria-hidden="true">•</span>
+            <span>{{ readingTime(feat) }}</span>
+          </div>
+          <a mat-flat-button color="primary" [routerLink]="['/article', feat.slug]">Baca artikel</a>
+        </div>
+      </mat-card>
+    </section>
+  }
+
+  @if (rest().length) {
+    <section class="grid-section">
+      <h2 class="section-title">Semua Artikel</h2>
+      <div class="card-grid">
+        @for (a of rest(); track a.slug) {
+          <mat-card class="article-card">
+            <a [routerLink]="['/article', a.slug]" class="card-image-link">
+              <img mat-card-image [src]="a.image || ''" [alt]="a.imageAlt || a.title" loading="lazy" (error)="onImgError($event)" />
+            </a>
+            <mat-card-content>
+              <div class="badges">
+                <span class="badge badge-category">{{ a.category }}</span>
+                <span class="badge" [class.badge-pemula]="a.difficulty === 'Pemula'" [class.badge-menengah]="a.difficulty === 'Menengah'" [class.badge-mahir]="a.difficulty === 'Mahir'">
+                  {{ a.difficulty }}
+                </span>
+                <span class="reading-time">{{ readingTime(a) }}</span>
+              </div>
+              <a [routerLink]="['/article', a.slug]">
+                <h3>{{ a.title }}</h3>
+              </a>
+              <p class="card-subtitle">{{ a.subtitle }}</p>
+              <mat-chip-set class="card-tags" aria-label="Tag artikel">
+                @for (t of a.tags; track t) {
+                  <mat-chip [routerLink]="['/tag', t]">#{{ t }}</mat-chip>
+                }
+              </mat-chip-set>
+            </mat-card-content>
+            <mat-card-footer class="card-footer">
+              <span>{{ a.author || cfg.defaultAuthor }}</span>
+              <span aria-hidden="true">•</span>
+              <span>{{ formatDate(a.dateCreated) }}</span>
+            </mat-card-footer>
+          </mat-card>
+        }
+      </div>
+    </section>
+  } @else if (!featured()) {
+    <section class="empty-state">
+      <img class="empty-mascot" src="scout-mascot.webp" alt="Maskot Scout" (error)="onImgError($event)" />
+      <h2>Tidak ada artikel yang cocok</h2>
+      <p>Coba kata kunci lain, atau reset semua filter.</p>
+      <button mat-flat-button color="primary" (click)="resetFilters()">Reset filter</button>
+    </section>
+  }
+} @else {
+  <section class="loading">
+    <p>Memuat artikel…</p>
+  </section>
+}

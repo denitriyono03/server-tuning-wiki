@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generate worker/seed.sql dari artikel JSON di src/content/.
+ * Generate worker/seed.sql dari artikel JSON di public/content/.
  * Dijalankan setiap kali ada artikel baru/diubah:
  *
  *   node worker/seed.mjs
@@ -15,14 +15,16 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const contentDir = join(root, 'src', 'content')
+const contentDir = join(root, 'public', 'content')
 
 const esc = (v) => String(v ?? '').replace(/'/g, "''")
 const j = (v) => esc(JSON.stringify(v ?? []))
 
-const files = readdirSync(contentDir).filter((f) => f.endsWith('.json')).sort()
+const files = readdirSync(contentDir)
+  .filter((f) => f.endsWith('.json') && f !== 'index.json')
+  .sort()
 const lines = [
-  '-- Seed Server Tuning Wiki — digenerate dari src/content/*.json',
+  '-- Seed Server Tuning Wiki — digenerate dari public/content/*.json',
   `-- ${new Date().toISOString()}`,
   '',
 ]

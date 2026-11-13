@@ -1,0 +1,80 @@
+<mat-toolbar class="stw-toolbar" color="primary">
+  @if (!isDesktop()) {
+    <button mat-icon-button (click)="openMenu()" aria-label="Buka menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+  }
+  <a class="brand" routerLink="/">
+    <img src="scout-logo.webp" alt="Logo Scout" class="brand-logo" width="40" height="40" />
+    <span class="brand-title">Server Tuning Wiki</span>
+  </a>
+  @if (isDesktop()) {
+    <nav class="category-nav" aria-label="Kategori">
+      <a mat-button routerLink="/">Beranda</a>
+      @for (cat of categories(); track cat) {
+        <a mat-button [routerLink]="['/category', cat]">{{ cat }}</a>
+      }
+    </nav>
+  }
+  <span class="spacer"></span>
+  @if (isDesktop()) {
+    <mat-chip class="sync-chip" matTooltip="Status sinkronisasi data">
+      <mat-icon matChipAvatar>{{ syncMeta(syncStatus()).icon }}</mat-icon>
+      {{ syncMeta(syncStatus()).label }}
+    </mat-chip>
+  }
+  <button mat-icon-button (click)="openSearch()" aria-label="Cari artikel" matTooltip="Cari">
+    <mat-icon>search</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    (click)="theme.toggle()"
+    [attr.aria-label]="theme.isDark ? 'Mode terang' : 'Mode gelap'"
+    [matTooltip]="theme.isDark ? 'Mode terang' : 'Mode gelap'"
+  >
+    <mat-icon>{{ theme.isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+  <button mat-icon-button routerLink="/debug" aria-label="HTTP Inspector" matTooltip="HTTP Inspector">
+    <mat-icon>bug_report</mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-sidenav-container class="stw-container">
+  @if (isDesktop()) {
+    <mat-sidenav mode="side" opened class="stw-sidenav">
+      <app-nav-tree [articles]="articles()"></app-nav-tree>
+      <div class="sidenav-mascot">
+        <img src="scout-mascot.webp" alt="Maskot Scout" class="mascot-img" />
+        <span>Dijaga Scout</span>
+      </div>
+    </mat-sidenav>
+  }
+  <mat-sidenav-content class="stw-content">
+    <main class="content-wrap">
+      <router-outlet></router-outlet>
+    </main>
+    <footer class="stw-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-brand-head">
+            <img src="scout-logo.webp" alt="Logo Scout" width="32" height="32" />
+            <strong>{{ siteConfig()?.siteTitle ?? 'Server Tuning Wiki' }}</strong>
+          </div>
+          <p>{{ siteConfig()?.siteDescription ?? '' }}</p>
+        </div>
+        <div class="footer-col">
+          <strong>Kategori</strong>
+          @for (cat of categories(); track cat) {
+            <a [routerLink]="['/category', cat]">{{ cat }}</a>
+          }
+        </div>
+        <div class="footer-col">
+          <strong>Tentang Wiki Ini</strong>
+          <p>{{ articleCount() }} artikel</p>
+          <p id="sync-status">{{ syncMeta(syncStatus()).label }}</p>
+          <p>Dibangun dengan Angular + Material</p>
+        </div>
+      </div>
+    </footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>

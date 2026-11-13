@@ -1,0 +1,64 @@
+{
+  "articles": [
+    {
+      "slug": "database-pooling",
+      "title": "Connection Pooling: PgBouncer & Pool Aplikasi",
+      "category": "Database"
+    },
+    {
+      "slug": "database-query",
+      "title": "Optimasi Query: Index, EXPLAIN & Slow Query Log",
+      "category": "Database"
+    },
+    {
+      "slug": "file-download",
+      "title": "Download File Cepat: sendfile & X-Accel-Redirect",
+      "category": "Download & Cache"
+    },
+    {
+      "slug": "linux-tuning",
+      "title": "Tuning Linux & TCP untuk Server Sibuk",
+      "category": "Sistem Operasi"
+    },
+    {
+      "slug": "nginx-cache",
+      "title": "Cache di NGINX: proxy_cache & fastcgi_cache",
+      "category": "NGINX"
+    },
+    {
+      "slug": "nginx-compression",
+      "title": "Kompresi Gzip & Brotli di NGINX",
+      "category": "NGINX"
+    },
+    {
+      "slug": "nginx-load-balancing",
+      "title": "Load Balancing NGINX",
+      "category": "NGINX"
+    },
+    {
+      "slug": "nginx-overview",
+      "title": "Tuning NGINX untuk Performa: Gambaran Umum",
+      "category": "NGINX"
+    },
+    {
+      "slug": "nginx-rate-limit",
+      "title": "Rate Limit di NGINX: limit_req & limit_conn",
+      "category": "NGINX"
+    },
+    {
+      "slug": "nginx-reverse-proxy-tuning",
+      "title": "Tuning Reverse Proxy NGINX",
+      "category": "NGINX"
+    },
+    {
+      "slug": "nginx-worker-tuning",
+      "title": "Worker, Koneksi & Keepalive di NGINX",
+      "category": "NGINX"
+    },
+    {
+      "slug": "redis-cache",
+      "title": "Caching Aplikasi dengan Redis",
+      "category": "Download & Cache"
+    }
+  ]
+}

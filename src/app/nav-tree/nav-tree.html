@@ -1,0 +1,56 @@
+@for (g of groups; track g.name) {
+  <div class="category">
+    <button
+      mat-button
+      class="category-header"
+      (click)="toggleCategory(g.name)"
+      [attr.aria-expanded]="isCatOpen(g.name)"
+    >
+      <mat-icon class="chevron">{{ isCatOpen(g.name) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+      <span class="category-name">{{ g.name }}</span>
+      <span class="count-badge">{{ g.count }}</span>
+    </button>
+    @if (isCatOpen(g.name)) {
+      <mat-nav-list class="tree-list">
+        @for (node of g.roots; track node.article.slug) {
+          <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node }"></ng-container>
+        }
+      </mat-nav-list>
+    }
+  </div>
+}
+
+<ng-template #nodeTpl let-node>
+  <div class="tree-node">
+    <div class="tree-row">
+      @if (node.children.length > 0) {
+        <button
+          mat-icon-button
+          class="toggle-btn"
+          (click)="toggleNode(node.article.slug)"
+          [attr.aria-expanded]="isNodeOpen(node.article.slug)"
+          aria-label="Tampilkan turunan"
+        >
+          <mat-icon>{{ isNodeOpen(node.article.slug) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+        </button>
+      } @else {
+        <span class="toggle-spacer" aria-hidden="true"></span>
+      }
+      <a
+        class="tree-link"
+        [routerLink]="['/article', node.article.slug]"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [title]="node.article.title"
+        >{{ node.article.title }}</a
+      >
+    </div>
+    @if (node.children.length > 0 && isNodeOpen(node.article.slug)) {
+      <div class="tree-children">
+        @for (child of node.children; track child.article.slug) {
+          <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: child }"></ng-container>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

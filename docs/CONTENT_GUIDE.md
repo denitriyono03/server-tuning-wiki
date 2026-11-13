@@ -1,6 +1,21 @@
 # Panduan Menulis Artikel — Server Tuning Wiki
 
-Setiap artikel adalah **satu file JSON** di `src/content/`. Nama file bebas, tapi disarankan sama dengan `slug`, mis. `src/content/nginx-cache.json`. Artikel dimuat otomatis — tidak ada index yang perlu diedit.
+Setiap artikel adalah **satu file JSON** di `public/content/`. Nama file bebas, tapi disarankan sama dengan `slug`, mis. `public/content/nginx-cache.json`.
+
+**Wajib:** setiap artikel harus didaftarkan di `public/content/index.json`
+(manifest). Aplikasi hanya memuat artikel yang ada di manifest — file JSON
+tanpa entri di `index.json` tidak akan tampil. Format entri:
+
+```json
+{
+  "articles": [
+    { "slug": "nginx-cache", "title": "Cache di NGINX: proxy_cache & fastcgi_cache", "category": "NGINX" }
+  ]
+}
+```
+
+Menambah artikel = tambah file JSON **+** tambah satu entri di `index.json`.
+Menghapus artikel = hapus file JSON **dan** hapus entrinya dari `index.json`.
 
 **Sudut pandang wajib: performa.** Setiap artikel harus menjawab: berapa
 cepat, berapa banyak concurrent yang bisa ditangani, dan berapa biayanya
@@ -9,7 +24,7 @@ ukuran cache/pool) dan konfigurasi nyata yang bisa dicopy-paste.
 
 ## Artikel & API (Cloudflare D1)
 
-File JSON di `src/content/` punya dua peran:
+File JSON di `public/content/` punya dua peran:
 
 1. **Bundle fallback** — terbungkus di dalam build website & APK, jadi aplikasi
    tetap jalan saat pertama dibuka offline.
@@ -21,6 +36,9 @@ Setelah menambah/mengubah artikel, jalankan:
 node worker/seed.mjs
 wrangler d1 execute server-tuning-db --file=worker/seed.sql
 ```
+
+`seed.mjs` membaca semua file `public/content/*.json` **kecuali** `index.json`
+(manifest bukan artikel, jadi tidak ikut di-seed).
 
 Lalu build & deploy ulang website/APK supaya bundle fallback-nya ikut baru.
 Aplikasi yang sudah terinstal akan mengambil konten baru dari API saat online
@@ -92,16 +110,16 @@ Aturan:
 Contoh — rantai NGINX yang sudah ada di wiki ini:
 
 ```json
-// src/content/nginx-overview.json
+// public/content/nginx-overview.json
 { "slug": "nginx-overview", "parent": null, "order": 1, "category": "NGINX", ... }
 
-// src/content/nginx-worker-tuning.json
+// public/content/nginx-worker-tuning.json
 { "slug": "nginx-worker-tuning", "parent": "nginx-overview", "order": 4, ... }
 
-// src/content/nginx-reverse-proxy-tuning.json
+// public/content/nginx-reverse-proxy-tuning.json
 { "slug": "nginx-reverse-proxy-tuning", "parent": "nginx-worker-tuning", "order": 1, ... }
 
-// src/content/nginx-load-balancing.json
+// public/content/nginx-load-balancing.json
 { "slug": "nginx-load-balancing", "parent": "nginx-reverse-proxy-tuning", "order": 1, ... }
 ```
 
@@ -149,7 +167,7 @@ Format inline yang didukung:
 }
 ```
 
-`language` mengikuti nama bahasa highlight.js (`bash`, `nginx`, `sql`, `yaml`, `json`, `ini`, `javascript`, `java`, `plaintext`, dsb.). `filename` ditampilkan di header blok; kalau dikosongkan, yang tampil nama bahasanya. Tulis `code` dengan `\n` untuk baris baru.
+`language` mengikuti nama bahasa highlight.js yang didaftarkan di aplikasi: `nginx`, `bash`, `sql`, `python`, `yaml`, `json`, `ini`, `plaintext`. Bahasa di luar daftar ini tetap tampil sebagai teks biasa (tanpa highlight). `filename` ditampilkan di header blok; kalau dikosongkan, yang tampil nama bahasanya. Tulis `code` dengan `\n` untuk baris baru.
 
 ### list — daftar berpoin / bernomor
 

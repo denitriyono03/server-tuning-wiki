@@ -1,0 +1,200 @@
+{
+  "author": "Deni",
+  "blocks": [
+    {
+      "level": 2,
+      "text": "Kenapa NGINX Bisa Lambat?",
+      "type": "heading"
+    },
+    {
+      "text": "NGINX terkenal cepat karena arsitekturnya yang **event-driven**: satu worker process bisa melayani ribuan koneksi bersamaan tanpa membuat thread baru untuk setiap request. Tapi cepat di atas kertas tidak otomatis berarti cepat di servermu. Dalam praktik, NGINX yang lambat hampir selalu disebabkan oleh empat hal: server membaca file dari disk berulang kali untuk konten yang sama, upstream seperti PHP atau aplikasi Node.js merespons dengan lambat, jumlah koneksi bersamaan melebihi kapasitas worker, atau tidak ada cache sama sekali sehingga setiap request menembus sampai ke backend. Kabar baiknya, keempat penyebab ini bisa diperbaiki dari sisi konfigurasi — tanpa menambah server baru dan tanpa mengubah kode aplikasi.",
+      "type": "paragraph"
+    },
+    {
+      "items": [
+        "**Disk I/O berulang:** file statis seperti gambar, CSS, dan JavaScript dibaca dari disk setiap ada request, padahal isinya tidak berubah. Solusinya: cache di memori dan `sendfile`.",
+        "**Upstream lambat:** PHP-FPM atau aplikasi backend butuh 200–500 ms untuk menghasilkan satu halaman, lalu NGINX hanya meneruskannya. Solusinya: cache hasil upstream selama masih valid.",
+        "**Koneksi habis:** `worker_connections` bawaan terlalu kecil untuk traffic puncak, sehingga request baru antre atau ditolak. Solusinya: naikkan worker dan koneksi sesuai RAM dan CPU.",
+        "**Tanpa cache dan kompresi:** setiap byte dikirim mentah dan setiap request dihitung ulang. Solusinya: `proxy_cache` dan kompresi gzip atau Brotli."
+      ],
+      "ordered": false,
+      "type": "list"
+    },
+    {
+      "level": 2,
+      "text": "Ukur Dulu, Tuning Kemudian",
+      "type": "heading"
+    },
+    {
+      "text": "Aturan pertama tuning performa adalah **jangan menebak**. Sebelum mengubah satu baris konfigurasi pun, ukur dulu kondisi server saat ini: berapa request per detik yang mampu dilayani, berapa lama waktu respons rata-rata, dan di mana bottleneck-nya. Tanpa angka baseline, kamu tidak akan tahu apakah perubahanmu membantu atau justru memperburuk keadaan. Dua alat paling sederhana untuk ini adalah `ab` (ApacheBench) untuk uji beban dan `curl` untuk mengukur waktu respons satu request. Selain itu, aktifkan modul `stub_status` di NGINX supaya kamu bisa melihat jumlah koneksi aktif, request yang sedang diproses, dan koneksi yang menunggu — semuanya dari satu endpoint HTTP.",
+      "type": "paragraph"
+    },
+    {
+      "code": "# Uji beban: 1000 request, 50 request bersamaan\nab -n 1000 -c 50 https://contoh.com/\n\n# Ukur waktu respons satu request (DNS, connect, TTFB, total)\ncurl -o /dev/null -s -w 'DNS:%{time_namelookup} Connect:%{time_connect} TTFB:%{time_starttransfer} Total:%{time_total}\\n' https://contoh.com/\n\n# Lihat status koneksi NGINX secara langsung\ncurl http://127.0.0.1/nginx_status",
+      "filename": "benchmark.sh",
+      "language": "bash",
+      "type": "code"
+    },
+    {
+      "code": "# Aktifkan stub_status (hanya dari localhost)\nserver {\n    listen 127.0.0.1:80;\n    server_name localhost;\n\n    location /nginx_status {\n        stub_status;\n        allow 127.0.0.1;\n        deny all;\n    }\n}",
+      "filename": "nginx.conf",
+      "language": "nginx",
+      "type": "code"
+    },
+    {
+      "kind": "tip",
+      "text": "Sebagai patokan awal: halaman statis sebaiknya merespons di bawah 50 ms (TTFB), halaman dinamis yang sudah di-cache di bawah 100 ms, dan halaman dinamis tanpa cache di bawah 300 ms. Kalau TTFB-mu di atas 500 ms untuk halaman yang sering dibuka, hampir pasti ada yang bisa diperbaiki — biasanya cache atau upstream. Catat angka baseline ini sebelum tuning, lalu bandingkan lagi setelah setiap perubahan.",
+      "title": "Angka Baseline yang Sehat",
+      "type": "callout"
+    },
+    {
+      "level": 2,
+      "text": "4 Pilar Tuning NGINX",
+      "type": "heading"
+    },
+    {
+      "text": "Semua teknik tuning NGINX bisa dikelompokkan ke dalam empat pilar. Urutannya di tabel bawah ini disusun berdasarkan **dampak per usaha**: cache dan kompresi biasanya memberi hasil terbesar dengan perubahan paling sedikit, sementara proteksi lebih ke arah stabilitas daripada kecepatan mentah.",
+      "type": "paragraph"
+    },
+    {
+      "headers": [
+        "Pilar",
+        "Teknik utama",
+        "Perkiraan dampak",
+        "Usaha"
+      ],
+      "rows": [
+        [
+          "Cache",
+          "proxy_cache, fastcgi_cache",
+          "Beban upstream turun 70–90%, TTFB ke <50 ms",
+          "Rendah"
+        ],
+        [
+          "Kompresi",
+          "gzip, Brotli",
+          "Ukuran transfer turun 70–80%",
+          "Rendah"
+        ],
+        [
+          "Worker & koneksi",
+          "worker_processes, worker_connections, keepalive",
+          "Throughput naik 2–5x di traffic puncak",
+          "Sedang"
+        ],
+        [
+          "Proteksi",
+          "limit_req, limit_conn",
+          "Server tetap responsif saat traffic abnormal",
+          "Sedang"
+        ]
+      ],
+      "type": "table"
+    },
+    {
+      "level": 3,
+      "text": "1. Cache: Jangan Hitung Ulang yang Sama",
+      "type": "heading"
+    },
+    {
+      "text": "Cache adalah teknik dengan dampak terbesar untuk kebanyakan website. Ketika NGINX menyimpan salinan respons di memori atau disk, request berikutnya untuk URL yang sama dijawab langsung tanpa menyentuh backend sama sekali. Untuk halaman yang sering dibuka — beranda, halaman produk populer, atau API yang datanya jarang berubah — ini bisa memangkas beban upstream sampai **90%** dan membuat waktu respons turun dari ratusan milidetik menjadi belasan milidetik. Kuncinya adalah menentukan apa yang boleh di-cache, berapa lama, dan kapan cache harus dibersihkan.",
+      "type": "paragraph"
+    },
+    {
+      "level": 3,
+      "text": "2. Kompresi: Kirim Lebih Sedikit, Sampai Lebih Cepat",
+      "type": "heading"
+    },
+    {
+      "text": "File teks seperti HTML, CSS, dan JavaScript sangat bisa dikompresi: gzip biasanya memangkas ukurannya **70–80%**, dan Brotli bisa lebih kecil lagi sekitar 15–20% dibanding gzip. Untuk pengguna dengan koneksi lambat, ini perbedaan antara halaman yang terasa instan dan halaman yang terasa berat. Biaya yang dibayar adalah CPU untuk mengompresi — tapi dengan level kompresi 5 atau 6, biayanya kecil dan hampir selalu sepadan. Untuk file yang tidak berubah, kamu bahkan bisa mengompresi sekali di depan (`gzip_static`) supaya NGINX tidak perlu mengompresi berulang kali.",
+      "type": "paragraph"
+    },
+    {
+      "level": 3,
+      "text": "3. Worker & Koneksi: Sesuaikan dengan Hardware",
+      "type": "heading"
+    },
+    {
+      "text": "Nilai bawaan NGINX — satu worker process dan 512 koneksi per worker — dibuat konservatif supaya aman di server kecil. Di server dengan 4 core CPU dan traffic ribuan request per detik, nilai itu terlalu kecil: request antre, koneksi ditolak, dan latency melonjak. Aturan praktisnya: set `worker_processes` ke `auto` (satu worker per core CPU), naikkan `worker_connections` ke 2048 atau 4096, dan aktifkan `keepalive` ke upstream supaya koneksi ke backend dipakai ulang, bukan dibuka-tutup setiap request. Satu detail yang sering terlewat: setiap koneksi terbuka memakai satu file descriptor, jadi naikkan juga limit file descriptor sistem operasi.",
+      "type": "paragraph"
+    },
+    {
+      "type": "code",
+      "language": "nginx",
+      "filename": "nginx.conf",
+      "code": "# Sesuaikan dengan jumlah core CPU (cek dengan: nproc)\nworker_processes auto;\nworker_rlimit_nofile 65535;\n\nevents {\n    worker_connections 4096;\n    use epoll;\n    multi_accept on;\n}\n\nhttp {\n    # Pakai ulang koneksi ke upstream, jangan buka-tutup tiap request\n    upstream backend {\n        server 127.0.0.1:8080;\n        keepalive 32;\n    }\n}"
+    },
+    {
+      "level": 3,
+      "text": "4. Proteksi: Cepat untuk yang Normal, Ketat untuk yang Abnormal",
+      "type": "heading"
+    },
+    {
+      "text": "Server yang cepat tapi roboh saat diserang bot atau traffic mendadak sama saja dengan server yang lambat. Rate limiting (`limit_req` dan `limit_conn`) memastikan satu IP atau satu client tidak bisa memonopoli server: request normal tetap dilayani dengan cepat, sementara request berlebihan ditahan atau ditolak dengan kode 503. Proteksi yang baik tidak terasa oleh pengguna normal — mereka tidak pernah menyentuh batasnya — tapi menyelamatkan server saat ada scraper agresif, percobaan brute force ke halaman login, atau lonjakan traffic yang tidak terduga.",
+      "type": "paragraph"
+    },
+    {
+      "type": "code",
+      "language": "nginx",
+      "filename": "nginx.conf",
+      "code": "# Starter pack: cache + kompresi dalam satu location\nlocation / {\n    proxy_cache app_cache;\n    proxy_cache_valid 200 10m;\n    proxy_pass http://backend;\n}\n\n# Kompresi untuk semua respons teks\ngzip on;\ngzip_comp_level 6;\ngzip_types text/plain text/css application/javascript application/json;"
+    },
+    {
+      "kind": "warning",
+      "text": "Setiap perubahan konfigurasi harus diuji satu per satu dan diukur dampaknya. Mengubah lima hal sekaligus lalu berharap performa membaik adalah cara tercepat untuk tidak tahu mana yang berhasil dan mana yang merusak. Ubah satu hal, uji beban lagi, bandingkan dengan baseline, lalu lanjut ke perubahan berikutnya. Dan selalu simpan salinan konfigurasi lama sebelum mengedit — `nginx -t` untuk memeriksa sintaks, baru `nginx -s reload` untuk menerapkan.",
+      "title": "Jangan Tuning Buta",
+      "type": "callout"
+    },
+    {
+      "level": 2,
+      "text": "Urutan yang Direkomendasikan",
+      "type": "heading"
+    },
+    {
+      "items": [
+        "Ukur baseline: catat request per detik, TTFB, dan jumlah koneksi aktif saat traffic normal dan puncak.",
+        "Aktifkan cache untuk konten yang sering diminta — ini biasanya memberi lonjakan performa terbesar.",
+        "Aktifkan kompresi gzip (dan Brotli bila memungkinkan) untuk semua respons teks.",
+        "Sesuaikan worker_processes, worker_connections, dan keepalive dengan jumlah core CPU dan RAM server.",
+        "Pasang rate limit di endpoint sensitif (login, API, pencarian) supaya server tetap stabil saat traffic abnormal."
+      ],
+      "ordered": true,
+      "type": "list"
+    },
+    {
+      "level": 2,
+      "text": "Referensi",
+      "type": "heading"
+    },
+    {
+      "text": "Dokumentasi resmi adalah sumber paling akurat untuk setiap directive yang dibahas di artikel ini: [NGINX Documentation](https://nginx.org/en/docs/). Artikel-artikel berikutnya di wiki ini membahas masing-masing pilar secara mendalam, lengkap dengan konfigurasi siap pakai.",
+      "type": "paragraph"
+    }
+  ],
+  "category": "NGINX",
+  "dateCreated": "2026-11-13",
+  "dateUpdated": "2026-11-13",
+  "difficulty": "Pemula",
+  "image": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
+  "imageAlt": "Ruang server",
+  "order": 1,
+  "parent": null,
+  "related": [
+    "nginx-cache",
+    "nginx-worker-tuning",
+    "nginx-rate-limit"
+  ],
+  "slug": "nginx-overview",
+  "source": {
+    "label": "NGINX Documentation",
+    "url": "https://nginx.org/en/docs/"
+  },
+  "subtitle": "Peta jalan tuning NGINX: dari cache sampai load balancing — mana yang paling berdampak untuk servermu",
+  "tags": [
+    "nginx",
+    "performa",
+    "tuning",
+    "web-server"
+  ],
+  "title": "Tuning NGINX untuk Performa: Gambaran Umum"
+}

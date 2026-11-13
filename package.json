@@ -1,25 +1,40 @@
 {
-  "dependencies": {
-    "@capacitor/android": "^8.6.2",
-    "@capacitor/cli": "^8.6.2",
-    "@capacitor/core": "^8.6.2",
-    "highlight.js": "^11.11.1"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.17",
-    "tailwindcss": "^4.1.17",
-    "typescript": "^7.0.2",
-    "vite": "^6.4.1"
-  },
   "name": "server-tuning-wiki",
-  "private": true,
+  "version": "0.0.0",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "preview": "vite preview --port 4173",
-    "build:apk": "vite build --base ./ && npx cap sync android",
+    "dev": "ng serve",
+    "build": "ng build --configuration production",
+    "build:apk": "ng build --configuration production --base-href ./ && npx cap sync android",
     "cap:sync": "npx cap sync android"
   },
-  "type": "module",
-  "version": "1.0.0"
+  "private": true,
+  "packageManager": "npm@10.9.4",
+  "dependencies": {
+    "@angular/animations": "^22.2.6",
+    "@angular/cdk": "^22.2.7",
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/material": "^22.2.7",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/router": "^22.2.0",
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/material-icons": "^5.3.0",
+    "highlight.js": "^11.12.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.6",
+    "@angular/cli": "^22.2.6",
+    "@angular/compiler-cli": "^22.2.0",
+    "@capacitor/cli": "^8.6.2",
+    "jsdom": "^30.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.0"
+  }
 }

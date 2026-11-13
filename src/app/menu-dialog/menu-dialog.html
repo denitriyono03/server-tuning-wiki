@@ -1,0 +1,24 @@
+<div class="menu-dialog">
+  <div class="menu-header">
+    <img src="scout-logo.webp" alt="Logo Scout" class="logo" width="40" height="40" />
+    <span class="title">Server Tuning Wiki</span>
+    <button mat-icon-button (click)="close()" aria-label="Tutup menu">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="menu-body">
+    <app-nav-tree [articles]="(content.articles$ | async) ?? []"></app-nav-tree>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="menu-footer">
+    <a mat-button routerLink="/debug" (click)="close()">
+      <mat-icon>bug_report</mat-icon>
+      HTTP Inspector
+    </a>
+    <button mat-button (click)="theme.toggle()">
+      <mat-icon>{{ theme.isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      {{ theme.isDark ? 'Mode terang' : 'Mode gelap' }}
+    </button>
+  </div>
+</div>
