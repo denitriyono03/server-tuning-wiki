@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -33,10 +33,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      # GitHub Pages tidak punya fallback SPA: salin index.html ke 404.html
+      # supaya deep link /article/... tetap memuat aplikasi Angular.
+      - name: SPA fallback
+        run: cp dist/server-tuning-wiki/browser/index.html dist/server-tuning-wiki/browser/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: dist/server-tuning-wiki/browser
 
   deploy:
     needs: build
